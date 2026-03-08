@@ -1,0 +1,2758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chamber Creator 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;700&display=swap');
+
+  :root {
+    --parchment: #c8a96e;
+    --ink: #1a0f00;
+    --blood: #7a1e1e;
+    --shadow: #0d0a06;
+    --gold: #c9922a;
+    --stone-light: #9e9080;
+    --stone-dark: #4a4038;
+    --vignette: rgba(10,6,0,0.85);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d0a06;
+    color: #c8a96e;
+    font-family: 'IM Fell English', serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: 
+      radial-gradient(ellipse at 50% 0%, rgba(201,146,42,0.08) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none; z-index: 0;
+  }
+
+  header {
+    text-align: center;
+    padding: 28px 20px 12px;
+    position: relative; z-index: 1;
+  }
+
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(201,146,42,0.4), 2px 2px 0 rgba(0,0,0,0.8);
+  }
+
+  header p {
+    font-style: italic;
+    color: #a07840;
+    font-size: 0.95rem;
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  .divider {
+    width: 320px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 10px auto;
+    position: relative;
+  }
+  .divider::before {
+    content: '⚔';
+    position: absolute; top: -9px; left: 50%;
+    transform: translateX(-50%);
+    color: var(--gold); font-size: 1.1rem;
+    background: #0d0a06; padding: 0 8px;
+  }
+
+  /* Navigation */
+  .nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .nav-links a {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--stone-light);
+    text-decoration: none;
+    border: 1px solid rgba(158,144,128,0.25);
+    padding: 5px 14px;
+    transition: color 0.25s, border-color 0.25s, background 0.25s;
+  }
+  .nav-links a:hover {
+    color: var(--gold-bright, #e8b84b);
+    border-color: rgba(201,146,42,0.5);
+    background: rgba(201,146,42,0.06);
+  }
+  .nav-links a.nav-active {
+    color: var(--gold);
+    border-color: rgba(201,146,42,0.35);
+    cursor: default;
+  }
+  .nav-sep {
+    color: rgba(158,144,128,0.3);
+    font-size: 0.7rem;
+    font-family: 'Cinzel', serif;
+  }
+
+  .layout {
+    display: flex;
+    gap: 18px;
+    padding: 10px 20px 30px;
+    width: 100%;
+    max-width: 1300px;
+    position: relative; z-index: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* CONTROLS PANEL */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 300px;
+    flex-shrink: 0;
+  }
+
+  .panel {
+    background: linear-gradient(160deg, rgba(30,20,10,0.95), rgba(15,10,5,0.98));
+    border: 1px solid rgba(201,146,42,0.3);
+    border-radius: 4px;
+    padding: 14px 16px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(201,146,42,0.1);
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute; inset: 2px;
+    border: 1px solid rgba(201,146,42,0.08);
+    border-radius: 3px;
+    pointer-events: none;
+  }
+
+  .panel-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(201,146,42,0.2);
+  }
+
+  label {
+    display: block;
+    font-size: 0.78rem;
+    color: #a07840;
+    margin-bottom: 3px;
+    letter-spacing: 0.06em;
+  }
+
+  select, input[type="range"], input[type="text"], textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(201,146,42,0.25);
+    color: var(--parchment);
+    font-family: 'IM Fell English', serif;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 2px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 10px;
+  }
+
+  select:focus, input:focus, textarea:focus {
+    border-color: rgba(201,146,42,0.6);
+    box-shadow: 0 0 8px rgba(201,146,42,0.15);
+  }
+
+  select option { background: #1a0f00; }
+
+  input[type="range"] {
+    padding: 0;
+    height: 6px;
+    cursor: pointer;
+    accent-color: var(--gold);
+    margin-bottom: 4px;
+  }
+
+  .range-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .range-row input { margin-bottom: 0; flex: 1; }
+  .range-val {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 0.8rem;
+    min-width: 32px;
+    text-align: right;
+  }
+
+  /* Color swatches */
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+
+  .swatch {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+    position: relative;
+  }
+
+  .swatch:hover { transform: scale(1.1); }
+  .swatch.active {
+    border-color: var(--gold);
+    box-shadow: 0 0 8px rgba(201,146,42,0.5);
+  }
+
+  .swatch::after {
+    content: '✓';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; color: rgba(255,255,255,0.9);
+    opacity: 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  }
+  .swatch.active::after { opacity: 1; }
+
+  /* Shape buttons */
+  .shape-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .shape-btn {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(201,146,42,0.2);
+    color: #a07840;
+    padding: 8px 4px;
+    cursor: pointer;
+    border-radius: 2px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-align: center;
+    transition: all 0.2s;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+  }
+
+  .shape-btn svg { opacity: 0.7; }
+  .shape-btn:hover { border-color: rgba(201,146,42,0.5); color: var(--parchment); }
+
+  .shape-btn.active {
+    background: rgba(201,146,42,0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 10px rgba(201,146,42,0.2);
+  }
+  .shape-btn.active svg { opacity: 1; }
+
+  /* Proportion ratio grid */
+  .ratio-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+
+  .ratio-btn {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(201,146,42,0.2);
+    color: #a07840;
+    padding: 6px 4px;
+    cursor: pointer;
+    border-radius: 2px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    text-align: center;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .ratio-btn:hover { border-color: rgba(201,146,42,0.5); color: var(--parchment); }
+  .ratio-btn.active {
+    background: rgba(201,146,42,0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 10px rgba(201,146,42,0.2);
+  }
+
+  /* Feature toggles */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .feat-btn {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(201,146,42,0.2);
+    color: #806030;
+    padding: 6px 8px;
+    cursor: pointer;
+    border-radius: 2px;
+    font-family: 'IM Fell English', serif;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+
+  .feat-btn:hover { border-color: rgba(201,146,42,0.4); color: var(--parchment); }
+
+  .feat-btn.active {
+    background: rgba(122,30,30,0.3);
+    border-color: rgba(180,60,60,0.5);
+    color: #e09090;
+  }
+
+  /* Generate button */
+
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+
+
+  /* CANVAS AREA */
+  .canvas-wrap {
+    flex: 1;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 700px;
+  }
+
+  .map-frame {
+    background: #080504;
+    border: 2px solid rgba(201,146,42,0.4);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.8),
+      0 8px 40px rgba(0,0,0,0.8),
+      inset 0 0 60px rgba(0,0,0,0.5);
+  }
+
+  .map-frame::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Corner ornaments */
+  .corner {
+    position: absolute;
+    width: 28px; height: 28px;
+    border-color: rgba(201,146,42,0.5);
+    border-style: solid;
+    z-index: 3;
+  }
+  .corner.tl { top: 6px; left: 6px; border-width: 2px 0 0 2px; }
+  .corner.tr { top: 6px; right: 6px; border-width: 2px 2px 0 0; }
+  .corner.bl { bottom: 6px; left: 6px; border-width: 0 0 2px 2px; }
+  .corner.br { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
+
+  canvas {
+    display: block;
+    width: 100%;
+    image-rendering: pixelated;
+  }
+
+
+
+  .dl-btn {
+    width: 100%;
+    background: linear-gradient(160deg, rgba(20,60,40,0.3), rgba(10,30,20,0.4));
+    border: 1px solid rgba(80,180,100,0.45);
+    color: #80c890;
+    padding: 10px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    transition: all 0.25s;
+    overflow: hidden;
+  }
+
+  .dl-btn:hover {
+    background: linear-gradient(160deg, rgba(20,60,40,0.5), rgba(10,30,20,0.6));
+    border-color: rgba(80,180,100,0.8);
+    box-shadow: 0 0 16px rgba(80,180,100,0.25);
+    color: #a0e8b0;
+  }
+
+  .dl-btn:active { transform: scale(0.98); }
+
+  .description-box {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(201,146,42,0.15);
+    border-radius: 3px;
+    padding: 12px 16px;
+    font-size: 1.15rem;
+    color: #b09070;
+    line-height: 1.7;
+    font-style: italic;
+    min-height: 48px;
+  }
+
+  /* Door counter */
+  .door-counter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .door-dec, .door-inc {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(201,146,42,0.3);
+    color: var(--gold);
+    width: 28px; height: 28px;
+    cursor: pointer;
+    border-radius: 2px;
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: all 0.15s;
+    font-family: monospace;
+    flex-shrink: 0;
+  }
+
+  .door-dec:hover, .door-inc:hover {
+    background: rgba(201,146,42,0.15);
+    border-color: var(--gold);
+  }
+
+  .door-count-val {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 1.1rem;
+    min-width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .door-positions {
+    font-family: 'Cinzel', serif;
+    color: #a07840;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(201,146,42,0.15);
+    border-radius: 2px;
+    padding: 3px 8px;
+    flex: 1;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Chamber Creator 2026</h1>
+  <div class="divider"></div>
+  <p>Forge thy chamber from darkness and stone</p>
+  <nav class="nav-links">
+    <a href="index.html">&#8962; Home</a>
+    <span class="nav-sep">&#9670;</span>
+    <a class="nav-active" href="chamber-creator.html">&#9647; Chambers</a>
+    <span class="nav-sep">&#9670;</span>
+    <a href="corridor-creator.html">&#10230; Corridors</a>
+  </nav>
+</header>
+
+<div class="layout">
+
+  <!-- LEFT CONTROLS -->
+  <div class="controls">
+
+    <div class="panel">
+      <div class="panel-title">✦ Chamber Shape</div>
+      <div class="shape-grid" id="shapeGrid">
+        <button class="shape-btn active" data-shape="circle">
+          <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+          Circle
+        </button>
+        <button class="shape-btn" data-shape="octagon">
+          <svg width="28" height="28" viewBox="0 0 28 28"><polygon points="10,3 18,3 25,10 25,18 18,25 10,25 3,18 3,10" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+          Octagon
+        </button>
+        <button class="shape-btn" data-shape="square">
+          <svg width="28" height="28" viewBox="0 0 28 28"><rect x="3" y="3" width="22" height="22" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+          Square
+        </button>
+        <button class="shape-btn" data-shape="rectangle">
+          <svg width="28" height="28" viewBox="0 0 28 28"><rect x="2" y="7" width="24" height="14" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+          Rect
+        </button>
+        <button class="shape-btn" data-shape="hexagon">
+          <svg width="28" height="28" viewBox="0 0 28 28"><polygon points="14,2 25,8 25,20 14,26 3,20 3,8" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+          Hexagon
+        </button>
+        <button class="shape-btn" data-shape="ellipse">
+          <svg width="28" height="28" viewBox="0 0 28 28"><ellipse cx="14" cy="14" rx="12" ry="7" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+          Ellipse
+        </button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">✦ Dimensions</div>
+
+      <!-- Shown only for rectangle / ellipse -->
+      <div id="proportionRow" style="display:none">
+        <label>✦ Proportions (Width : Height)</label>
+        <div class="ratio-grid" id="ratioGrid">
+          <button class="ratio-btn" data-ratio="1.25">
+            <svg width="28" height="24" viewBox="0 0 28 24"><rect x="1" y="2" width="26" height="20" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+            5:4
+          </button>
+          <button class="ratio-btn active" data-ratio="1.5">
+            <svg width="28" height="20" viewBox="0 0 28 20"><rect x="1" y="2" width="26" height="16" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+            3:2
+          </button>
+          <button class="ratio-btn" data-ratio="1.778">
+            <svg width="28" height="17" viewBox="0 0 28 17"><rect x="1" y="2" width="26" height="13" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+            16:9
+          </button>
+          <button class="ratio-btn" data-ratio="2">
+            <svg width="28" height="15" viewBox="0 0 28 15"><rect x="1" y="2" width="26" height="11" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+            2:1
+          </button>
+          <button class="ratio-btn" data-ratio="2.5">
+            <svg width="28" height="13" viewBox="0 0 28 13"><rect x="1" y="2" width="26" height="9" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+            5:2
+          </button>
+          <button class="ratio-btn" data-ratio="3">
+            <svg width="28" height="11" viewBox="0 0 28 11"><rect x="1" y="2" width="26" height="7" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+            3:1
+          </button>
+          <button class="ratio-btn" data-ratio="0.667">
+            <svg width="18" height="28" viewBox="0 0 18 28"><rect x="2" y="1" width="14" height="26" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+            2:3
+          </button>
+          <button class="ratio-btn" data-ratio="custom">
+            <svg width="28" height="18" viewBox="0 0 28 18"><rect x="1" y="2" width="26" height="14" stroke="currentColor" stroke-width="1.2" fill="none" stroke-dasharray="3,2"/></svg>
+            Custom
+          </button>
+        </div>
+        <div id="customRatioRow" style="display:none">
+          <label>Width units</label>
+          <div class="range-row">
+            <input type="range" id="ratioXSlider" min="1" max="10" value="3">
+            <span class="range-val" id="ratioXVal">3</span>
+          </div>
+          <label>Height units</label>
+          <div class="range-row">
+            <input type="range" id="ratioYSlider" min="1" max="10" value="2">
+            <span class="range-val" id="ratioYVal">2</span>
+          </div>
+        </div>
+      </div>
+      <label>Chamber Diameter</label>
+      <div class="range-row">
+        <input type="range" id="sizeSlider" min="30" max="95" value="65">
+        <span class="range-val" id="sizeVal">65%</span>
+      </div>
+      <label>Wall Thickness</label>
+      <div class="range-row">
+        <input type="range" id="wallSlider" min="3" max="20" value="9">
+        <span class="range-val" id="wallVal">9</span>
+      </div>
+      <label>Ceiling Height (depth shadow)</label>
+      <div class="range-row">
+        <input type="range" id="heightSlider" min="0" max="20" value="8">
+        <span class="range-val" id="heightVal">8</span>
+      </div>
+      <label>Door Quantity</label>
+      <div class="door-counter">
+        <button class="door-dec" id="doorDec">−</button>
+        <span class="door-count-val" id="doorCountVal">1</span>
+        <button class="door-inc" id="doorInc">+</button>
+        <span class="door-positions" id="doorPositions">S</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">✦ Wall Material</div>
+      <select id="materialSelect">
+        <optgroup label="── Fantasy / Ancient ──">
+          <option value="stone">Rough Stone</option>
+          <option value="brick">Fitted Brick</option>
+          <option value="marble">Polished Marble</option>
+          <option value="wood">Wooden Planks</option>
+          <option value="obsidian">Obsidian</option>
+          <option value="ice">Glacial Ice</option>
+          <option value="dirt">Earthen Dirt</option>
+          <option value="sandstone">Sandstone</option>
+          <option value="crystal">Crystal</option>
+        </optgroup>
+        <optgroup label="── Modern / Sci-Fi ──">
+          <option value="smooth">Smooth Plaster</option>
+          <option value="concrete">Poured Concrete</option>
+          <option value="office">Office Drywall</option>
+          <option value="spacestation">Space Station Hull</option>
+          <option value="martian">Martian Bedrock</option>
+        </optgroup>
+      </select>
+
+      <label>Wall Color</label>
+      <div class="swatch-grid" id="wallSwatches">
+        <div class="swatch active" data-color="stone" style="background:#6e6358" title="Stone Grey"></div>
+        <div class="swatch" data-color="brown" style="background:#7a5030" title="Earth Brown"></div>
+        <div class="swatch" data-color="red" style="background:#8b3030" title="Blood Red"></div>
+        <div class="swatch" data-color="blue" style="background:#2a4a7a" title="Sapphire"></div>
+        <div class="swatch" data-color="green" style="background:#2a5a30" title="Verdigris"></div>
+        <div class="swatch" data-color="purple" style="background:#5a2a7a" title="Violet"></div>
+        <div class="swatch" data-color="gold" style="background:#8a6a1a" title="Gilded"></div>
+        <div class="swatch" data-color="black" style="background:#1a1a2a" title="Pitch Black"></div>
+        <div class="swatch" data-color="white" style="background:#b0a898" title="Pale Marble"></div>
+        <div class="swatch" data-color="cyan" style="background:#1a6a7a" title="Frozen"></div>
+        <div class="swatch" data-color="orange" style="background:#9a5010" title="Sandstone"></div>
+        <div class="swatch" data-color="moss" style="background:#3a5025" title="Mossy"></div>
+      </div>
+
+      <label>Floor Color</label>
+      <div class="swatch-grid" id="floorSwatches">
+        <div class="swatch active" data-color="floor-stone" style="background:#3a342c" title="Dark Stone"></div>
+        <div class="swatch" data-color="floor-dirt" style="background:#4a3820" title="Dirt Floor"></div>
+        <div class="swatch" data-color="floor-marble" style="background:#706858" title="Marble"></div>
+        <div class="swatch" data-color="floor-black" style="background:#121018" title="Void"></div>
+        <div class="swatch" data-color="floor-sand" style="background:#8a7048" title="Sand"></div>
+        <div class="swatch" data-color="floor-water" style="background:#1a3060" title="Flooded"></div>
+        <div class="swatch" data-color="floor-lava" style="background:#501008" title="Lava Cracked"></div>
+        <div class="swatch" data-color="floor-ice" style="background:#204060" title="Ice"></div>
+        <div class="swatch" data-color="floor-wood" style="background:#5a3820" title="Wood"></div>
+        <div class="swatch" data-color="floor-moss" style="background:#283820" title="Overgrown"></div>
+        <div class="swatch" data-color="floor-tile" style="background:#444038" title="Tile"></div>
+        <div class="swatch" data-color="floor-void" style="background:#080610" title="Abyss"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">✦ Chamber Features</div>
+      <div class="feature-grid" id="featureGrid">
+        <button class="feat-btn" data-feat="gate">⬡ Portal Gate</button>
+        <button class="feat-btn active" data-feat="pillars">◉ Pillars</button>
+        <button class="feat-btn" data-feat="altar">✦ Altar</button>
+        <button class="feat-btn" data-feat="torch">🔥 Torches</button>
+        <button class="feat-btn" data-feat="cracks">⌇ Cracks</button>
+        <button class="feat-btn" data-feat="rubble">⬡ Rubble</button>
+        <button class="feat-btn" data-feat="bloodstains">✦ Stains</button>
+        <button class="feat-btn" data-feat="chains">⛓ Chains</button>
+        <button class="feat-btn" data-feat="chest">⬢ Chest</button>
+        <button class="feat-btn" data-feat="pit">⬡ Pit</button>
+      </div>
+      <label>Column Quantity</label>
+      <div class="door-counter">
+        <button class="door-dec" id="colDec">−</button>
+        <span class="door-count-val" id="colCountVal">4</span>
+        <button class="door-inc" id="colInc">+</button>
+        <span class="door-positions" id="colLayout">ring</span>
+      </div>
+      <label>Lighting</label>
+      <select id="lightingSelect">
+        <option value="torchlit">Torchlit</option>
+        <option value="dim">Dim / Shadowy</option>
+        <option value="bright">Bright Magical</option>
+        <option value="unlit">Unlit (Darkness)</option>
+        <option value="bioluminescent">Bioluminescent</option>
+        <option value="hellish">Hellfire</option>
+      </select>
+    </div>
+
+
+
+  </div>
+
+  <!-- RIGHT: MAP -->
+  <div class="canvas-wrap">
+    <div class="map-frame">
+      <canvas id="dungeonCanvas" width="680" height="680"></canvas>
+    </div>
+
+    <div class="description-box" id="descBox">
+      <em>Chamber awaits cartography...</em>
+    </div>
+
+    <button class="dl-btn" id="dlBtn">⬇ Download Transparent PNG</button>
+
+
+  </div>
+
+</div>
+
+<script>
+const canvas = document.getElementById('dungeonCanvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+
+// ─── State ───────────────────────────────────────────────
+let state = {
+  shape: 'circle',
+  size: 65,
+  wallThick: 9,
+  heightShadow: 8,
+  material: 'stone',
+  wallColor: 'stone',
+  floorColor: 'floor-stone',
+  features: new Set(['pillars']),
+  lighting: 'torchlit',
+  doorCount: 1,
+  columnCount: 4,
+  aspectRatio: 1.5,   // width:height for rectangle/ellipse (>1 = wider than tall)
+  customX: 3,
+  customY: 2,
+  seed: Math.random() * 10000 | 0,
+};
+
+// ─── Color Palettes ───────────────────────────────────────
+const WALL_COLORS = {
+  stone:   { base: '#6e6358', dark: '#3c362d', light: '#9e9080', accent: '#8a7e6a' },
+  brown:   { base: '#7a5030', dark: '#4a2a10', light: '#aa7050', accent: '#9a6040' },
+  red:     { base: '#8b3030', dark: '#5a1818', light: '#bc5050', accent: '#a04040' },
+  blue:    { base: '#2a4a7a', dark: '#162438', light: '#4a6aaa', accent: '#3a5a8a' },
+  green:   { base: '#2a5a30', dark: '#142a18', light: '#4a8a50', accent: '#3a6a40' },
+  purple:  { base: '#5a2a7a', dark: '#2c1240', light: '#8a4aaa', accent: '#6a3a8a' },
+  gold:    { base: '#8a6a1a', dark: '#4a380a', light: '#c09030', accent: '#a07820' },
+  black:   { base: '#1a1a2a', dark: '#0a0a14', light: '#2a2a3a', accent: '#222232' },
+  white:   { base: '#b0a898', dark: '#706860', light: '#d0c8c0', accent: '#c0b8a8' },
+  cyan:    { base: '#1a6a7a', dark: '#0a3040', light: '#3a9aaa', accent: '#2a7a8a' },
+  orange:  { base: '#9a5010', dark: '#501808', light: '#ca7030', accent: '#b06020' },
+  moss:    { base: '#3a5025', dark: '#1c2812', light: '#5a7840', accent: '#4a6030' },
+};
+
+const FLOOR_COLORS = {
+  'floor-stone':  { base: '#3a342c', dark: '#201c16', mid: '#4e4840', light: '#605a50' },
+  'floor-dirt':   { base: '#4a3820', dark: '#2a1e0e', mid: '#5e4c2e', light: '#7a6040' },
+  'floor-marble': { base: '#706858', dark: '#504840', mid: '#847a6c', light: '#988e80' },
+  'floor-black':  { base: '#121018', dark: '#08060e', mid: '#1c1a24', light: '#28253a' },
+  'floor-sand':   { base: '#8a7048', dark: '#5a4828', mid: '#a08860', light: '#c0a880' },
+  'floor-water':  { base: '#1a3060', dark: '#0e1c3e', mid: '#243e78', light: '#3a5498', special: 'water' },
+  'floor-lava':   { base: '#501008', dark: '#300804', mid: '#702010', light: '#a04020', special: 'lava' },
+  'floor-ice':    { base: '#204060', dark: '#102030', mid: '#304e78', light: '#506898', special: 'ice' },
+  'floor-wood':   { base: '#5a3820', dark: '#3a2010', mid: '#6e4a2a', light: '#8a6040' },
+  'floor-moss':   { base: '#283820', dark: '#141c10', mid: '#384c2e', light: '#4a6040' },
+  'floor-tile':   { base: '#444038', dark: '#2a2822', mid: '#58524a', light: '#6c6660', special: 'tile' },
+  'floor-void':   { base: '#080610', dark: '#040308', mid: '#100c1a', light: '#1c1828', special: 'void' },
+};
+
+// ─── RNG ──────────────────────────────────────────────────
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// Returns the width:height ratio for rectangle/ellipse shapes
+function getAspectRatio() {
+  if (state.aspectRatio === 'custom') return state.customX / state.customY;
+  return parseFloat(state.aspectRatio);
+}
+
+// Returns the Y-scale factor (height as fraction of width) for rect/ellipse
+function getYScale() {
+  return 1 / getAspectRatio();
+}
+
+// ─── Main Draw ────────────────────────────────────────────
+function draw() {
+  const rng = mulberry32(state.seed);
+  ctx.clearRect(0, 0, W, H);
+
+  const cx = W / 2;
+  const cy = H / 2;
+  const maxR = Math.min(W, H) * 0.5 * 0.95;
+  const chamberR = maxR * (state.size / 100);
+  const wallW = chamberR * (state.wallThick / 100);
+  const wallColors = WALL_COLORS[state.wallColor] || WALL_COLORS.stone;
+  const floorC = FLOOR_COLORS[state.floorColor] || FLOOR_COLORS['floor-stone'];
+
+  // Draw background (beyond chamber)
+  ctx.fillStyle = '#05030a';
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw outer background texture
+  drawBgTexture(rng, wallColors);
+
+  // Build chamber path
+  const chamberPath = makeChamberPath(cx, cy, chamberR, state.shape, rng);
+  const outerPath = makeChamberPath(cx, cy, chamberR + wallW, state.shape, rng, true);
+
+  // Draw outer wall with depth shadow
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.9)';
+  ctx.shadowBlur = 30;
+  ctx.shadowOffsetX = state.heightShadow * 0.7;
+  ctx.shadowOffsetY = state.heightShadow;
+  ctx.fillStyle = wallColors.dark;
+  ctx.fill(outerPath);
+  ctx.restore();
+
+  // Draw wall material
+  drawWallMaterial(outerPath, chamberPath, wallColors, rng);
+
+  // Draw floor
+  ctx.save();
+  ctx.clip(chamberPath);
+  drawFloor(cx, cy, chamberR, floorC, rng);
+  ctx.restore();
+
+  // Draw lighting overlay
+  drawLighting(cx, cy, chamberR, state.lighting, chamberPath, rng);
+
+  // Draw features
+  if (state.features.has('cracks')) drawCracks(cx, cy, chamberR, floorC, rng);
+  if (state.features.has('pit')) drawPit(cx, cy, chamberR, rng);
+  if (state.features.has('pillars')) drawPillars(cx, cy, chamberR, wallColors, state.shape, rng);
+  if (state.features.has('altar')) drawAltar(cx, cy, chamberR, rng);
+  if (state.features.has('gate')) drawGate(cx, cy, chamberR, rng);
+  if (state.features.has('chest')) drawChest(cx, cy, chamberR, rng);
+  if (state.features.has('torch')) drawTorches(cx, cy, chamberR, state.shape, rng);
+  if (state.features.has('rubble')) drawRubble(cx, cy, chamberR, wallColors, rng);
+  if (state.features.has('bloodstains')) drawBloodstains(cx, cy, chamberR, rng);
+  if (state.features.has('chains')) drawChains(cx, cy, chamberR, rng);
+
+  // Draw doorway
+  drawDoor(cx, cy, chamberR + wallW, wallColors, state.shape, rng, chamberR);
+
+  // Draw wall inner edge + wall top
+  drawWallEdge(outerPath, chamberPath, wallColors);
+
+  // Compass
+  // drawCompass removed
+
+  // Scale bar
+  // scale bar removed
+
+  // Update description
+  updateDescription();
+}
+
+// ─── Background texture ────────────────────────────────────
+function drawBgTexture(rng, wallColors) {
+  const imageData = ctx.createImageData(W, H);
+  const d = imageData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const n = (rng() * 20) | 0;
+    d[i]   = 5 + n;
+    d[i+1] = 3 + (n * 0.7) | 0;
+    d[i+2] = 8 + n;
+    d[i+3] = 255;
+  }
+  ctx.putImageData(imageData, 0, 0);
+}
+
+// ─── Chamber Path Helpers ─────────────────────────────────
+function makeChamberPath(cx, cy, r, shape, rng, outer = false) {
+  const path = new Path2D();
+  const localRng = mulberry32(outer ? 9999 : 1234);
+
+  switch (shape) {
+    case 'circle': {
+      path.arc(cx, cy, r, 0, Math.PI * 2);
+      break;
+    }
+    case 'square': {
+      path.rect(cx - r, cy - r, r * 2, r * 2);
+      break;
+    }
+    case 'rectangle': {
+      const ys = getYScale();
+      path.rect(cx - r, cy - r * ys, r * 2, r * 2 * ys);
+      break;
+    }
+    case 'octagon': {
+      const s = r * 0.414;
+      path.moveTo(cx - s, cy - r);
+      path.lineTo(cx + s, cy - r);
+      path.lineTo(cx + r, cy - s);
+      path.lineTo(cx + r, cy + s);
+      path.lineTo(cx + s, cy + r);
+      path.lineTo(cx - s, cy + r);
+      path.lineTo(cx - r, cy + s);
+      path.lineTo(cx - r, cy - s);
+      path.closePath();
+      break;
+    }
+    case 'hexagon': {
+      for (let i = 0; i < 6; i++) {
+        const a = (Math.PI / 3) * i - Math.PI / 6;
+        const x = cx + r * Math.cos(a);
+        const y = cy + r * Math.sin(a);
+        i === 0 ? path.moveTo(x, y) : path.lineTo(x, y);
+      }
+      path.closePath();
+      break;
+    }
+    case 'ellipse': {
+      path.ellipse(cx, cy, r, r * getYScale(), 0, 0, Math.PI * 2);
+      break;
+    }
+  }
+  return path;
+}
+
+// ─── Wall Material ────────────────────────────────────────
+function drawWallMaterial(outerPath, innerPath, wallColors, rng) {
+  ctx.save();
+  ctx.clip(outerPath);
+
+  // Base wall color
+  ctx.fillStyle = wallColors.base;
+  ctx.fill(outerPath);
+
+  const mat = state.material;
+
+  if (mat === 'brick' || mat === 'stone') {
+    drawStonework(rng, wallColors, mat);
+  } else if (mat === 'marble') {
+    drawMarbleVeins(rng, wallColors);
+  } else if (mat === 'wood') {
+    drawWoodGrain(rng, wallColors);
+  } else if (mat === 'obsidian') {
+    drawObsidian(rng, wallColors);
+  } else if (mat === 'ice') {
+    drawIceCrystals(rng, wallColors);
+  } else if (mat === 'dirt') {
+    drawDirtTexture(rng, wallColors);
+  } else if (mat === 'sandstone') {
+    drawSandstone(rng, wallColors);
+  } else if (mat === 'crystal') {
+    drawCrystal(rng, wallColors);
+  } else if (mat === 'smooth') {
+    drawSmooth(rng, wallColors);
+  } else if (mat === 'concrete') {
+    drawConcrete(rng, wallColors);
+  } else if (mat === 'office') {
+    drawOffice(rng, wallColors);
+  } else if (mat === 'spacestation') {
+    drawSpaceStation(rng, wallColors);
+  } else if (mat === 'martian') {
+    drawMartian(rng, wallColors);
+  }
+
+  // Clip out inner (floor)
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.fill(innerPath);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.restore();
+}
+
+function drawStonework(rng, wallColors, type) {
+  const step = type === 'brick' ? 18 : 22 + (rng() * 10 | 0);
+  const halfStep = step * 0.5;
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  ctx.strokeStyle = wallColors.dark;
+  ctx.lineWidth = type === 'brick' ? 1.5 : 1;
+
+  for (let y = -step; y < H + step; y += step * 0.6) {
+    const offset = (Math.floor(y / (step * 0.6)) % 2) * halfStep;
+    for (let x = -step + offset; x < W + step; x += step) {
+      const w = step * (0.85 + rng() * 0.3);
+      const h = step * (0.55 + rng() * 0.2);
+      ctx.strokeRect(x + rng() * 3, y + rng() * 3, w, h);
+    }
+  }
+
+  ctx.globalAlpha = 0.08;
+  ctx.fillStyle = wallColors.light;
+  for (let i = 0; i < 200; i++) {
+    ctx.fillRect(rng() * W, rng() * H, rng() * 3 + 1, rng() * 2 + 1);
+  }
+  ctx.restore();
+}
+
+function drawMarbleVeins(rng, wallColors) {
+  ctx.save();
+  for (let i = 0; i < 8; i++) {
+    const x0 = rng() * W; const y0 = rng() * H;
+    const x1 = x0 + (rng() - 0.5) * 400;
+    const y1 = y0 + (rng() - 0.5) * 400;
+    const grad = ctx.createLinearGradient(x0, y0, x1, y1);
+    grad.addColorStop(0, 'transparent');
+    grad.addColorStop(0.5, wallColors.light + '40');
+    grad.addColorStop(1, 'transparent');
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = rng() * 2 + 0.5;
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.bezierCurveTo(x0 + rng() * 100, y0 + rng() * 100, x1 - rng() * 100, y1 - rng() * 100, x1, y1);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawWoodGrain(rng, wallColors) {
+  ctx.save();
+  ctx.globalAlpha = 0.2;
+  const planks = 12;
+  const plankW = W / planks;
+  for (let i = 0; i < planks; i++) {
+    ctx.strokeStyle = i % 2 === 0 ? wallColors.dark : wallColors.light;
+    ctx.lineWidth = plankW - 1;
+    ctx.beginPath();
+    ctx.moveTo(i * plankW + plankW/2, 0);
+    ctx.lineTo(i * plankW + plankW/2 + (rng() - 0.5) * 20, H);
+    ctx.stroke();
+  }
+  // knots
+  ctx.globalAlpha = 0.15;
+  ctx.strokeStyle = wallColors.dark;
+  for (let i = 0; i < 8; i++) {
+    ctx.beginPath();
+    ctx.ellipse(rng()*W, rng()*H, 8+rng()*12, 5+rng()*8, rng()*Math.PI, 0, Math.PI*2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawObsidian(rng, wallColors) {
+  ctx.save();
+  ctx.globalAlpha = 0.15;
+  for (let i = 0; i < 20; i++) {
+    const x = rng() * W; const y = rng() * H;
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, 60 + rng() * 80);
+    grad.addColorStop(0, wallColors.light + '80');
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  }
+  ctx.restore();
+}
+
+function drawIceCrystals(rng, wallColors) {
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ctx.strokeStyle = wallColors.light;
+  for (let i = 0; i < 30; i++) {
+    const x = rng() * W; const y = rng() * H;
+    const r = 20 + rng() * 40;
+    const arms = 6;
+    ctx.lineWidth = 0.8;
+    for (let j = 0; j < arms; j++) {
+      const a = (Math.PI * 2 / arms) * j;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + r * Math.cos(a), y + r * Math.sin(a));
+      ctx.stroke();
+      // side branches
+      const bx = x + r * 0.5 * Math.cos(a);
+      const by = y + r * 0.5 * Math.sin(a);
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.lineTo(bx + r * 0.3 * Math.cos(a + Math.PI/3), by + r * 0.3 * Math.sin(a + Math.PI/3));
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+function drawDirtTexture(rng, wallColors) {
+  ctx.save();
+  ctx.globalAlpha = 0.2;
+  for (let i = 0; i < 500; i++) {
+    ctx.fillStyle = rng() > 0.5 ? wallColors.dark : wallColors.light;
+    ctx.beginPath();
+    ctx.arc(rng()*W, rng()*H, rng()*3+0.5, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawSandstone(rng, wallColors) {
+  ctx.save();
+  ctx.globalAlpha = 0.15;
+  for (let y = 0; y < H; y += 8 + rng() * 6) {
+    ctx.strokeStyle = rng() > 0.5 ? wallColors.light : wallColors.dark;
+    ctx.lineWidth = 0.5 + rng();
+    ctx.beginPath();
+    ctx.moveTo(0, y + (rng() - 0.5) * 4);
+    for (let x = 0; x < W; x += 20) {
+      ctx.lineTo(x, y + (rng() - 0.5) * 4);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawCrystal(rng, wallColors) {
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  for (let i = 0; i < 40; i++) {
+    const x = rng() * W; const y = rng() * H;
+    const h = 20 + rng() * 50; const w = 8 + rng() * 20;
+    const a = rng() * Math.PI;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(a);
+    ctx.beginPath();
+    ctx.moveTo(0, -h/2);
+    ctx.lineTo(w/2, 0);
+    ctx.lineTo(0, h/2);
+    ctx.lineTo(-w/2, 0);
+    ctx.closePath();
+    ctx.strokeStyle = wallColors.light;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = wallColors.accent + '40';
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+// ─── SMOOTH PLASTER ───────────────────────────────────────
+function drawSmooth(rng, wallColors) {
+  // Very slight noise for painted plaster look — almost featureless
+  ctx.save();
+  for (let i = 0; i < 6; i++) {
+    const x = rng() * W; const y = rng() * H;
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, 120 + rng() * 80);
+    gr.addColorStop(0, wallColors.light + '12');
+    gr.addColorStop(1, 'transparent');
+    ctx.fillStyle = gr;
+    ctx.fillRect(0, 0, W, H);
+  }
+  // Subtle roller-paint texture
+  ctx.globalAlpha = 0.06;
+  for (let y = 0; y < H; y += 3) {
+    ctx.strokeStyle = rng() > 0.5 ? wallColors.light : wallColors.base;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.04 + rng() * 0.04;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y + (rng() - 0.5) * 2);
+    ctx.stroke();
+  }
+  // Hairline cracks at corners
+  ctx.globalAlpha = 0.12;
+  ctx.strokeStyle = wallColors.dark;
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i < 5; i++) {
+    ctx.beginPath();
+    let lx = rng() * W; let ly = rng() * H;
+    ctx.moveTo(lx, ly);
+    for (let j = 0; j < 3; j++) {
+      lx += (rng() - 0.5) * 18; ly += (rng() - 0.5) * 18;
+      ctx.lineTo(lx, ly);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// ─── POURED CONCRETE ─────────────────────────────────────
+function drawConcrete(rng, wallColors) {
+  ctx.save();
+  // Formwork horizontal lines (pour marks)
+  ctx.globalAlpha = 0.14;
+  const bandH = 28 + rng() * 14;
+  for (let y = 0; y < H; y += bandH) {
+    ctx.fillStyle = rng() > 0.5 ? wallColors.dark + '80' : wallColors.light + '40';
+    ctx.fillRect(0, y, W, 1.5);
+  }
+  // Aggregate speckle
+  ctx.globalAlpha = 0.18;
+  for (let i = 0; i < 400; i++) {
+    const r = 0.5 + rng() * 2.5;
+    ctx.fillStyle = rng() > 0.6 ? wallColors.light : wallColors.dark;
+    ctx.beginPath();
+    ctx.arc(rng() * W, rng() * H, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // Bug holes (void pockets in concrete)
+  ctx.globalAlpha = 0.22;
+  ctx.fillStyle = wallColors.dark;
+  for (let i = 0; i < 30; i++) {
+    ctx.beginPath();
+    ctx.arc(rng() * W, rng() * H, 1 + rng() * 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // Tie-hole bolt circles
+  ctx.globalAlpha = 0.2;
+  ctx.strokeStyle = wallColors.dark;
+  for (let i = 0; i < 8; i++) {
+    const bx = rng() * W; const by = rng() * H;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(bx, by, 4, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(bx, by, 1.5, 0, Math.PI * 2); ctx.fill();
+  }
+  // Bleed stain streaks
+  ctx.globalAlpha = 0.08;
+  ctx.strokeStyle = wallColors.dark;
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 6; i++) {
+    const sx = rng() * W; const sy = rng() * H * 0.5;
+    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + (rng()-0.5)*10, sy + 40 + rng()*60); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// ─── OFFICE DRYWALL ──────────────────────────────────────
+function drawOffice(rng, wallColors) {
+  ctx.save();
+  // Drywall panel grid — 4x8 sheets
+  const pw = 96; const ph = 192;
+  ctx.globalAlpha = 0.12;
+  ctx.strokeStyle = wallColors.dark;
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W + pw; x += pw) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H + ph; y += ph) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  // Screw dot grid
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = wallColors.dark;
+  for (let x = 16; x < W; x += pw) {
+    for (let y = 16; y < H; y += 32) {
+      ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(W - 16, y, 1.5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  // Tape seam along joins — subtle raised ridge
+  ctx.globalAlpha = 0.08;
+  ctx.strokeStyle = wallColors.light;
+  ctx.lineWidth = 4;
+  for (let x = 0; x < W + pw; x += pw) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  // Baseboard line at bottom
+  ctx.globalAlpha = 0.25;
+  ctx.fillStyle = wallColors.dark;
+  ctx.fillRect(0, H - 14, W, 14);
+  ctx.strokeStyle = wallColors.light + '60';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, H - 14); ctx.lineTo(W, H - 14); ctx.stroke();
+  // Fluorescent light fixture silhouette at top
+  ctx.globalAlpha = 0.15;
+  ctx.fillStyle = wallColors.light;
+  for (let x = 40; x < W - 40; x += 180) {
+    ctx.fillRect(x, 4, 120, 10);
+    ctx.fillStyle = wallColors.accent + '80';
+    ctx.fillRect(x + 2, 5, 116, 8);
+    ctx.fillStyle = wallColors.light;
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// ─── SPACE STATION HULL ──────────────────────────────────
+function drawSpaceStation(rng, wallColors) {
+  ctx.save();
+  // Large hull panel grid with beveled edges
+  const panW = 60 + (rng() * 20 | 0);
+  const panH = 40 + (rng() * 20 | 0);
+  ctx.globalAlpha = 0.22;
+  ctx.strokeStyle = wallColors.dark;
+  ctx.lineWidth = 2;
+  for (let x = 0; x < W + panW; x += panW) {
+    for (let y = 0; y < H + panH; y += panH) {
+      ctx.strokeRect(x + 2, y + 2, panW - 4, panH - 4);
+    }
+  }
+  // Bevel highlight lines (top-left edges)
+  ctx.globalAlpha = 0.12;
+  ctx.strokeStyle = wallColors.light;
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W + panW; x += panW) {
+    for (let y = 0; y < H + panH; y += panH) {
+      ctx.beginPath();
+      ctx.moveTo(x + 2, y + panH - 2); ctx.lineTo(x + 2, y + 2); ctx.lineTo(x + panW - 2, y + 2);
+      ctx.stroke();
+    }
+  }
+  // Rivet dots at corners
+  ctx.globalAlpha = 0.28;
+  ctx.fillStyle = wallColors.accent;
+  for (let x = panW; x < W; x += panW) {
+    for (let y = panH; y < H; y += panH) {
+      ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  // Warning stripe decals (yellow/black hazard)
+  ctx.globalAlpha = 0.18;
+  for (let i = 0; i < 3; i++) {
+    const sx = rng() * W * 0.6; const sy = rng() * H * 0.6;
+    const sw = 60 + rng() * 40; const sh = 10;
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.rotate((rng() - 0.5) * 0.3);
+    for (let j = 0; j < 8; j++) {
+      ctx.fillStyle = j % 2 === 0 ? '#c0a010' : '#1a1a1a';
+      ctx.fillRect(j * (sw / 8), 0, sw / 8, sh);
+    }
+    ctx.restore();
+  }
+  // Conduit / cable run lines
+  ctx.globalAlpha = 0.2;
+  ctx.strokeStyle = wallColors.accent;
+  ctx.lineWidth = 2.5;
+  ctx.setLineDash([]);
+  for (let i = 0; i < 4; i++) {
+    const lx = rng() * W; const ly = rng() * H;
+    ctx.beginPath();
+    ctx.moveTo(lx, ly);
+    ctx.lineTo(lx + (rng() - 0.5) * W * 0.6, ly);
+    ctx.lineTo(lx + (rng() - 0.5) * W * 0.6, ly + (rng() - 0.5) * H * 0.5);
+    ctx.stroke();
+  }
+  // Vent grill patches
+  ctx.globalAlpha = 0.2;
+  ctx.strokeStyle = wallColors.dark;
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 3; i++) {
+    const vx = rng() * W * 0.7 + W * 0.1;
+    const vy = rng() * H * 0.7 + H * 0.1;
+    for (let j = 0; j < 6; j++) {
+      ctx.beginPath(); ctx.moveTo(vx, vy + j * 4); ctx.lineTo(vx + 24, vy + j * 4); ctx.stroke();
+    }
+    ctx.strokeRect(vx - 1, vy - 1, 26, 26);
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// ─── MARTIAN BEDROCK ─────────────────────────────────────
+function drawMartian(rng, wallColors) {
+  ctx.save();
+  // Sedimentary strata bands — horizontal compressed layers
+  ctx.globalAlpha = 0.2;
+  let y = 0;
+  while (y < H) {
+    const bandH = 6 + rng() * 18;
+    const shade = rng();
+    ctx.fillStyle = shade > 0.6 ? wallColors.light + '40' :
+                    shade > 0.3 ? wallColors.base + '60' :
+                                  wallColors.dark + '50';
+    ctx.fillRect(0, y, W, bandH);
+    y += bandH;
+  }
+  // Iron oxide rust blotches
+  ctx.globalAlpha = 0.15;
+  for (let i = 0; i < 25; i++) {
+    const bx = rng() * W; const by = rng() * H;
+    const r = 8 + rng() * 30;
+    const gr = ctx.createRadialGradient(bx, by, 0, bx, by, r);
+    gr.addColorStop(0, '#c04010a0');
+    gr.addColorStop(0.5, '#803010' + '60');
+    gr.addColorStop(1, 'transparent');
+    ctx.fillStyle = gr;
+    ctx.fillRect(bx - r, by - r, r * 2, r * 2);
+  }
+  // Angular fractured crack network
+  ctx.globalAlpha = 0.3;
+  ctx.strokeStyle = wallColors.dark;
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 18; i++) {
+    const sx = rng() * W; const sy = rng() * H;
+    ctx.beginPath(); ctx.moveTo(sx, sy);
+    let lx = sx; let ly = sy;
+    const segs = 3 + (rng() * 4 | 0);
+    for (let j = 0; j < segs; j++) {
+      // Martian cracks are more angular than fantasy cracks
+      const angle = Math.round(rng() * 4) * (Math.PI / 4) + (rng() - 0.5) * 0.3;
+      const len = 15 + rng() * 35;
+      lx += Math.cos(angle) * len; ly += Math.sin(angle) * len;
+      ctx.lineTo(lx, ly);
+    }
+    ctx.stroke();
+  }
+  // Dust particle scatter
+  ctx.globalAlpha = 0.12;
+  for (let i = 0; i < 300; i++) {
+    ctx.fillStyle = rng() > 0.5 ? '#c06030' : wallColors.dark;
+    ctx.fillRect(rng() * W, rng() * H, rng() * 2 + 0.5, rng() * 2 + 0.5);
+  }
+  // Small pebble aggregate
+  ctx.globalAlpha = 0.2;
+  for (let i = 0; i < 60; i++) {
+    const px = rng() * W; const py = rng() * H;
+    const pr = 1.5 + rng() * 4;
+    ctx.fillStyle = rng() > 0.4 ? wallColors.light : '#a04020';
+    ctx.beginPath();
+    ctx.ellipse(px, py, pr, pr * (0.5 + rng() * 0.5), rng() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // Wind-scour polish streaks — nearly horizontal
+  ctx.globalAlpha = 0.08;
+  ctx.strokeStyle = wallColors.light;
+  ctx.lineWidth = 0.8;
+  for (let i = 0; i < 20; i++) {
+    const sy2 = rng() * H;
+    ctx.beginPath();
+    ctx.moveTo(rng() * W * 0.3, sy2 + (rng() - 0.5) * 4);
+    ctx.lineTo(rng() * W * 0.6 + W * 0.2, sy2 + (rng() - 0.5) * 4);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// ─── Floor ────────────────────────────────────────────────
+function drawFloor(cx, cy, r, floorC, rng) {
+  // Base
+  ctx.fillStyle = floorC.base;
+  ctx.fillRect(0, 0, W, H);
+
+  const special = floorC.special;
+
+  if (special === 'water') {
+    drawWaterFloor(cx, cy, r, floorC, rng);
+  } else if (special === 'lava') {
+    drawLavaFloor(cx, cy, r, floorC, rng);
+  } else if (special === 'ice') {
+    drawIceFloor(cx, cy, r, floorC, rng);
+  } else if (special === 'tile') {
+    drawTileFloor(cx, cy, r, floorC, rng);
+  } else if (special === 'void') {
+    drawVoidFloor(cx, cy, r, floorC, rng);
+  } else {
+    drawGenericFloor(cx, cy, r, floorC, rng);
+  }
+}
+
+function drawGenericFloor(cx, cy, r, floorC, rng) {
+  // Scatter across bounding box — clip path handles the shape
+  const rh = r * getYScale();
+  for (let i = 0; i < 800; i++) {
+    const x = cx + (rng() * 2 - 1) * r;
+    const y = cy + (rng() * 2 - 1) * rh;
+    ctx.fillStyle = rng() > 0.5 ? floorC.dark : floorC.mid;
+    ctx.globalAlpha = 0.3;
+    ctx.fillRect(x, y, rng() * 5 + 1, rng() * 3 + 1);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawWaterFloor(cx, cy, r, floorC, rng) {
+  const rh = r * getYScale();
+  for (let i = 0; i < 30; i++) {
+    const x = cx + (rng() * 2 - 1) * r * 0.95;
+    const y = cy + (rng() * 2 - 1) * rh * 0.95;
+    const wr = 10 + rng() * 40;
+    ctx.beginPath();
+    ctx.ellipse(x, y, wr, wr * 0.4, rng() * Math.PI, 0, Math.PI * 2);
+    ctx.strokeStyle = floorC.light + '60';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+  // Caustic shimmer
+  ctx.globalAlpha = 0.06;
+  ctx.fillStyle = '#80c0ff';
+  for (let i = 0; i < 150; i++) {
+    const x = cx + (rng() * 2 - 1) * r;
+    const y = cy + (rng() * 2 - 1) * rh;
+    ctx.beginPath();
+    ctx.arc(x, y, rng() * 6 + 1, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawLavaFloor(cx, cy, r, floorC, rng) {
+  const rh = r * getYScale();
+  ctx.globalAlpha = 0.6;
+  for (let i = 0; i < 20; i++) {
+    const x = cx + (rng() * 2 - 1) * r * 0.9;
+    const y = cy + (rng() * 2 - 1) * rh * 0.9;
+    ctx.strokeStyle = '#ff5010';
+    ctx.lineWidth = 1.5 + rng() * 2;
+    ctx.shadowColor = '#ff4000';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    let lx = x, ly = y;
+    for (let j = 0; j < 5; j++) {
+      lx += (rng() - 0.5) * 40; ly += (rng() - 0.5) * 40;
+      ctx.lineTo(lx, ly);
+    }
+    ctx.stroke();
+  }
+  ctx.shadowBlur = 0;
+  ctx.globalAlpha = 1;
+}
+
+function drawIceFloor(cx, cy, r, floorC, rng) {
+  const rh = r * getYScale();
+  ctx.globalAlpha = 0.15;
+  for (let i = 0; i < 10; i++) {
+    const x = cx + (rng() * 2 - 1) * r;
+    const y = cy + (rng() * 2 - 1) * rh;
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, 80 + rng() * 60);
+    gr.addColorStop(0, '#a0d0ff50');
+    gr.addColorStop(1, 'transparent');
+    ctx.fillStyle = gr;
+    ctx.fillRect(0, 0, W, H);
+  }
+  ctx.globalAlpha = 1;
+  // fracture lines
+  ctx.globalAlpha = 0.2;
+  ctx.strokeStyle = '#c0e0ff';
+  ctx.lineWidth = 0.6;
+  for (let i = 0; i < 30; i++) {
+    const x = cx + (rng() * 2 - 1) * r;
+    const y = cy + (rng() * 2 - 1) * rh;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + (rng() - 0.5) * 80, y + (rng() - 0.5) * 80);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawVoidFloor(cx, cy, r, floorC, rng) {
+  const rh = r * getYScale();
+  const gr = ctx.createRadialGradient(cx, cy, r * 0.1, cx, cy, Math.max(r, rh));
+  gr.addColorStop(0, '#1a0a3080');
+  gr.addColorStop(0.5, '#080410a0');
+  gr.addColorStop(1, '#00000080');
+  ctx.fillStyle = gr;
+  ctx.fillRect(0, 0, W, H);
+  // stars scattered across the bounding box
+  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = '#ffffff';
+  for (let i = 0; i < 80; i++) {
+    const x = cx + (rng() * 2 - 1) * r * 0.95;
+    const y = cy + (rng() * 2 - 1) * rh * 0.95;
+    ctx.beginPath();
+    ctx.arc(x, y, rng() * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawTileFloor(cx, cy, r, floorC, rng) {
+  const tileSize = 24;
+  const rh = r * getYScale();
+  ctx.globalAlpha = 0.2;
+  for (let x = cx - r - tileSize; x < cx + r + tileSize; x += tileSize) {
+    for (let y = cy - rh - tileSize; y < cy + rh + tileSize; y += tileSize) {
+      ctx.strokeStyle = (Math.floor((x + y) / tileSize) % 2 === 0) ? floorC.light : floorC.dark;
+      ctx.strokeRect(x, y, tileSize, tileSize);
+      if (rng() > 0.9) {
+        ctx.fillStyle = floorC.dark + '40';
+        ctx.fillRect(x, y, tileSize, tileSize);
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ─── Lighting ─────────────────────────────────────────────
+function drawLighting(cx, cy, r, lighting, chamberPath, rng) {
+  ctx.save();
+  ctx.clip(chamberPath);
+
+  if (lighting === 'torchlit') {
+    const gr = ctx.createRadialGradient(cx, cy - r * 0.1, r * 0.1, cx, cy, r * 1.2);
+    gr.addColorStop(0, 'rgba(255,180,60,0.12)');
+    gr.addColorStop(0.5, 'rgba(200,120,20,0.06)');
+    gr.addColorStop(1, 'rgba(0,0,0,0.65)');
+    ctx.fillStyle = gr;
+    ctx.fillRect(0, 0, W, H);
+  } else if (lighting === 'dim') {
+    const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    gr.addColorStop(0, 'rgba(0,0,0,0.2)');
+    gr.addColorStop(0.6, 'rgba(0,0,0,0.6)');
+    gr.addColorStop(1, 'rgba(0,0,0,0.85)');
+    ctx.fillStyle = gr;
+    ctx.fillRect(0, 0, W, H);
+  } else if (lighting === 'bright') {
+    const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    gr.addColorStop(0, 'rgba(220,220,255,0.12)');
+    gr.addColorStop(0.7, 'rgba(180,180,255,0.04)');
+    gr.addColorStop(1, 'rgba(0,0,0,0.3)');
+    ctx.fillStyle = gr;
+    ctx.fillRect(0, 0, W, H);
+  } else if (lighting === 'unlit') {
+    ctx.fillStyle = 'rgba(0,0,0,0.82)';
+    ctx.fillRect(0, 0, W, H);
+    // tiny hints
+    const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 0.5);
+    gr.addColorStop(0, 'rgba(20,10,0,0)');
+    gr.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gr;
+    ctx.fillRect(0, 0, W, H);
+  } else if (lighting === 'bioluminescent') {
+    for (let i = 0; i < 8; i++) {
+      const a = rng() * Math.PI * 2; const d = rng() * r * 0.7;
+      const bx = cx + d * Math.cos(a); const by = cy + d * Math.sin(a);
+      const bcol = ['#00ff9080', '#40ffb080', '#00e06080'][i % 3];
+      const gr2 = ctx.createRadialGradient(bx, by, 0, bx, by, 60 + rng() * 40);
+      gr2.addColorStop(0, bcol);
+      gr2.addColorStop(1, 'transparent');
+      ctx.fillStyle = gr2;
+      ctx.fillRect(0, 0, W, H);
+    }
+    const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    gr.addColorStop(0.4, 'transparent');
+    gr.addColorStop(1, 'rgba(0,0,0,0.7)');
+    ctx.fillStyle = gr;
+    ctx.fillRect(0, 0, W, H);
+  } else if (lighting === 'hellish') {
+    const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    gr.addColorStop(0, 'rgba(255,60,0,0.15)');
+    gr.addColorStop(0.5, 'rgba(180,20,0,0.1)');
+    gr.addColorStop(1, 'rgba(0,0,0,0.7)');
+    ctx.fillStyle = gr;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  ctx.restore();
+}
+
+// ─── Features ─────────────────────────────────────────────
+function drawPillars(cx, cy, r, wallColors, shape, rng) {
+  const positions = getPillarPositions(shape, r * 0.55);
+  // Use a seeded rng so material texture is stable per pillar
+  const matRng = mulberry32(state.seed + 77);
+
+  positions.forEach(([px, py]) => {
+    const pr = r * 0.055;
+    const ox = cx + px;
+    const oy = cy + py;
+
+    // Shadow
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetX = state.heightShadow * 0.5;
+    ctx.shadowOffsetY = state.heightShadow * 0.7;
+    ctx.fillStyle = wallColors.dark;
+    ctx.beginPath();
+    ctx.arc(ox, oy, pr, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Pillar base gradient (lighting from upper-left)
+    const grad = ctx.createRadialGradient(ox - pr * 0.3, oy - pr * 0.3, 0, ox, oy, pr);
+    grad.addColorStop(0, wallColors.light);
+    grad.addColorStop(0.6, wallColors.base);
+    grad.addColorStop(1, wallColors.dark);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(ox, oy, pr, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Clip to pillar circle and apply the same material texture as the walls
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(ox, oy, pr, 0, Math.PI * 2);
+    ctx.clip();
+
+    // Translate so material functions draw centred on the pillar
+    ctx.translate(ox - W / 2, oy - H / 2);
+
+    const mat = state.material;
+    if (mat === 'brick' || mat === 'stone')    drawStonework(matRng, wallColors, mat);
+    else if (mat === 'marble')                 drawMarbleVeins(matRng, wallColors);
+    else if (mat === 'wood')                   drawWoodGrain(matRng, wallColors);
+    else if (mat === 'obsidian')               drawObsidian(matRng, wallColors);
+    else if (mat === 'ice')                    drawIceCrystals(matRng, wallColors);
+    else if (mat === 'dirt')                   drawDirtTexture(matRng, wallColors);
+    else if (mat === 'sandstone')              drawSandstone(matRng, wallColors);
+    else if (mat === 'crystal')                drawCrystal(matRng, wallColors);
+    else if (mat === 'smooth')                 drawSmooth(matRng, wallColors);
+    else if (mat === 'concrete')               drawConcrete(matRng, wallColors);
+    else if (mat === 'office')                 drawOffice(matRng, wallColors);
+    else if (mat === 'spacestation')           drawSpaceStation(matRng, wallColors);
+    else if (mat === 'martian')                drawMartian(matRng, wallColors);
+
+    ctx.restore();
+
+    // Top-light specular highlight (small bright spot upper-left)
+    ctx.fillStyle = wallColors.light + '70';
+    ctx.beginPath();
+    ctx.arc(ox - pr * 0.25, oy - pr * 0.25, pr * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Rim darkening
+    ctx.save();
+    const rim = ctx.createRadialGradient(ox, oy, pr * 0.6, ox, oy, pr);
+    rim.addColorStop(0, 'transparent');
+    rim.addColorStop(1, 'rgba(0,0,0,0.45)');
+    ctx.fillStyle = rim;
+    ctx.beginPath();
+    ctx.arc(ox, oy, pr, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function getPillarPositions(shape, dist) {
+  const n = state.columnCount;
+  if (n === 0) return [];
+
+  // ── CIRCLE / ELLIPSE: evenly spaced ring ──────────────────
+  if (shape === 'circle' || shape === 'ellipse') {
+    const rx = dist;
+    const ry = shape === 'ellipse' ? dist * getYScale() : dist;
+    return Array.from({length: n}, (_, i) => {
+      const a = (Math.PI * 2 / n) * i - Math.PI / 2; // start at top
+      return [rx * Math.cos(a), ry * Math.sin(a)];
+    });
+  }
+
+  // ── SQUARE: church layout — two rows flanking the nave ────
+  // 2 columns per side (left & right), evenly spaced along depth
+  if (shape === 'square') {
+    const cols = [];
+    const half = Math.floor(n / 2);
+    const leftover = n - half * 2; // 0 or 1 extra — place at centre-front
+    const xOff = dist * 0.65;
+    // Spread pairs evenly along Y
+    const pairs = half;
+    for (let i = 0; i < pairs; i++) {
+      const t = pairs === 1 ? 0 : -1 + (2 * i) / (pairs - 1);
+      const y = t * dist * 0.7;
+      cols.push([-xOff, y]);
+      cols.push([ xOff, y]);
+    }
+    if (leftover) cols.push([0, -dist * 0.7]); // lone column at altar end
+    return cols;
+  }
+
+  // ── RECTANGLE: columns along the two long walls (top & bottom) ──
+  // Rectangle is width=2*dist, height=2*dist*0.7 — long axis is horizontal
+  if (shape === 'rectangle') {
+    const cols = [];
+    const half = Math.floor(n / 2);   // columns per long wall
+    const leftover = n - half * 2;    // 0 or 1 extra
+    const yOff  = dist * getYScale() * 0.75;  // inset from long wall edge, scales with aspect ratio
+    const xSpan = dist * 0.80;                 // how far along the wall they spread
+
+    for (let i = 0; i < half; i++) {
+      // Spread evenly; if only 1 per side, place at centre
+      const t = half === 1 ? 0 : -1 + (2 * i) / (half - 1);
+      const x = t * xSpan;
+      cols.push([x, -yOff]);   // top long wall
+      cols.push([x,  yOff]);   // bottom long wall
+    }
+    if (leftover) cols.push([0, 0]); // lone extra at dead centre
+    return cols;
+  }
+
+  // ── HEXAGON: near corners of the hex ──────────────────────
+  // Hex corners (vertices) at: -π/6 + i*π/3, pulled inward
+  if (shape === 'hexagon') {
+    const all = Array.from({length: 6}, (_, i) => {
+      const a = (Math.PI / 3) * i - Math.PI / 6;
+      return [dist * Math.cos(a), dist * Math.sin(a)];
+    });
+    // Spread evenly: pick every 6/n-th vertex, rotating for visual balance
+    return pickEvenly(all, n);
+  }
+
+  // ── OCTAGON: near corners of the octagon ──────────────────
+  // Oct vertices at: i*π/4 - π/8  (matching the drawn shape: top-left, top-right…)
+  if (shape === 'octagon') {
+    const all = Array.from({length: 8}, (_, i) => {
+      const a = (Math.PI / 4) * i - Math.PI / 2; // start at top
+      return [dist * Math.cos(a), dist * Math.sin(a)];
+    });
+    return pickEvenly(all, n);
+  }
+
+  // ── ELLIPSE already handled above; fallback for any other shape ──
+  return Array.from({length: n}, (_, i) => {
+    const a = (Math.PI * 2 / n) * i - Math.PI / 2;
+    return [dist * Math.cos(a), dist * Math.sin(a)];
+  });
+}
+
+// Pick n items spread as evenly as possible from an array of positions
+function pickEvenly(all, n) {
+  const total = all.length;
+  const count = Math.min(n, total);
+  const step = total / count;
+  return Array.from({length: count}, (_, i) => all[Math.round(i * step) % total]);
+}
+
+function drawGate(cx, cy, r, rng) {
+  const gr = r * 0.18;
+  // Glow
+  ctx.save();
+  ctx.shadowColor = '#8060ff';
+  ctx.shadowBlur = 30;
+  // Outer ring
+  ctx.strokeStyle = '#6040c0';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(cx, cy, gr + 8, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.strokeStyle = '#a080ff';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, gr + 14, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+  // Rune circle
+  ctx.save();
+  ctx.strokeStyle = '#c0a0ff80';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 8; i++) {
+    const a = (Math.PI / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(cx + (gr - 6) * Math.cos(a), cy + (gr - 6) * Math.sin(a));
+    ctx.lineTo(cx + (gr + 8) * Math.cos(a + Math.PI / 8), cy + (gr + 8) * Math.sin(a + Math.PI / 8));
+    ctx.stroke();
+  }
+  ctx.restore();
+  // Inner void
+  const vGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, gr);
+  vGrad.addColorStop(0, '#20104080');
+  vGrad.addColorStop(0.6, '#1a0a3060');
+  vGrad.addColorStop(1, '#0a0520a0');
+  ctx.fillStyle = vGrad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, gr, 0, Math.PI * 2);
+  ctx.fill();
+  // Star pattern
+  ctx.save();
+  ctx.globalAlpha = 0.6;
+  ctx.strokeStyle = '#8060ff';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const a1 = (Math.PI * 2 / 5) * i;
+    const a2 = (Math.PI * 2 / 5) * ((i + 2) % 5);
+    ctx.beginPath();
+    ctx.moveTo(cx + gr * 0.8 * Math.cos(a1), cy + gr * 0.8 * Math.sin(a1));
+    ctx.lineTo(cx + gr * 0.8 * Math.cos(a2), cy + gr * 0.8 * Math.sin(a2));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawAltar(cx, cy, r, rng) {
+  const aw = r * 0.18; const ah = r * 0.1;
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.7)';
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetY = 5;
+  ctx.fillStyle = '#4a3820';
+  ctx.fillRect(cx - aw, cy - ah, aw * 2, ah * 2);
+  ctx.restore();
+  // Top surface
+  ctx.fillStyle = '#6a5030';
+  ctx.fillRect(cx - aw * 0.9, cy - ah * 0.9, aw * 1.8, ah * 0.8);
+  // Stain
+  ctx.globalAlpha = 0.4;
+  ctx.fillStyle = '#8b1a1a';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - ah * 0.4, aw * 0.4, ah * 0.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+function drawTorches(cx, cy, r, shape, rng) {
+  const positions = getPillarPositions(shape, r * 0.88);
+  positions.slice(0, 4).forEach(([px, py]) => {
+    const tx = cx + px; const ty = cy + py;
+    // Wall mount base
+    ctx.fillStyle = '#3a2a1a';
+    ctx.fillRect(tx - 4, ty - 2, 8, 4);
+    // Flame glow
+    ctx.save();
+    ctx.shadowColor = '#ff8020';
+    ctx.shadowBlur = 20;
+    const fGrad = ctx.createRadialGradient(tx, ty - 6, 0, tx, ty - 6, 12);
+    fGrad.addColorStop(0, '#ffe080');
+    fGrad.addColorStop(0.4, '#ff8020');
+    fGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = fGrad;
+    ctx.fillRect(tx - 12, ty - 18, 24, 24);
+    ctx.restore();
+    // Torch stick
+    ctx.strokeStyle = '#6a4a20';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty - 2);
+    ctx.lineTo(tx, ty - 10);
+    ctx.stroke();
+    // Flame
+    ctx.fillStyle = '#ffe080c0';
+    ctx.beginPath();
+    ctx.moveTo(tx - 4, ty - 10);
+    ctx.quadraticCurveTo(tx, ty - 18, tx + 4, ty - 10);
+    ctx.fill();
+  });
+}
+
+function drawRubble(cx, cy, r, wallColors, rng) {
+  for (let i = 0; i < 20; i++) {
+    const a = rng() * Math.PI * 2;
+    const d = r * (0.3 + rng() * 0.55);
+    const rx = cx + d * Math.cos(a);
+    const ry = cy + d * Math.sin(a);
+    ctx.save();
+    ctx.translate(rx, ry);
+    ctx.rotate(rng() * Math.PI);
+    const s = 4 + rng() * 14;
+    ctx.fillStyle = rng() > 0.5 ? wallColors.dark : wallColors.base;
+    ctx.beginPath();
+    ctx.moveTo(0, -s/2);
+    ctx.lineTo(s * 0.6, 0);
+    ctx.lineTo(s * 0.3, s * 0.7);
+    ctx.lineTo(-s * 0.4, s * 0.5);
+    ctx.lineTo(-s * 0.6, -s * 0.2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawBloodstains(cx, cy, r, rng) {
+  ctx.save();
+  ctx.globalAlpha = 0.45;
+  for (let i = 0; i < 8; i++) {
+    const a = rng() * Math.PI * 2; const d = rng() * r * 0.75;
+    const bx = cx + d * Math.cos(a); const by = cy + d * Math.sin(a);
+    ctx.fillStyle = '#6a0a0a';
+    ctx.beginPath();
+    ctx.ellipse(bx, by, 8 + rng() * 20, 5 + rng() * 12, rng() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+    // Splatter drops
+    for (let j = 0; j < 4; j++) {
+      const da = rng() * Math.PI * 2; const dd = rng() * 20;
+      ctx.beginPath();
+      ctx.arc(bx + dd * Math.cos(da), by + dd * Math.sin(da), rng() * 3 + 1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function drawChains(cx, cy, r, rng) {
+  for (let i = 0; i < 3; i++) {
+    const a1 = rng() * Math.PI * 2; const d1 = r * 0.8;
+    const x1 = cx + d1 * Math.cos(a1); const y1 = cy + d1 * Math.sin(a1);
+    const x2 = cx + (rng() - 0.5) * r * 1.2; const y2 = cy + (rng() - 0.5) * r * 1.2;
+    ctx.strokeStyle = '#5a5040';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.quadraticCurveTo(cx + (rng() - 0.5) * 40, cy + (rng() - 0.5) * 40, x2, y2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function drawChest(cx, cy, r, rng) {
+  const a = rng() * Math.PI * 2; const d = r * (0.35 + rng() * 0.3);
+  const tx = cx + d * Math.cos(a); const ty = cy + d * Math.sin(a);
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 4;
+  ctx.fillStyle = '#4a2a0a';
+  ctx.fillRect(tx - 12, ty - 8, 24, 16);
+  ctx.restore();
+  // Lid
+  ctx.fillStyle = '#6a4020';
+  ctx.fillRect(tx - 12, ty - 8, 24, 7);
+  // Metal bands
+  ctx.strokeStyle = '#8a7020';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(tx - 12, ty - 8, 24, 16);
+  ctx.beginPath();
+  ctx.moveTo(tx, ty - 8); ctx.lineTo(tx, ty + 8);
+  ctx.stroke();
+  // Keyhole
+  ctx.fillStyle = '#2a1a08';
+  ctx.beginPath();
+  ctx.arc(tx, ty + 2, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+  // Shine
+  ctx.fillStyle = '#c0a030';
+  ctx.beginPath();
+  ctx.arc(tx - 4, ty - 5, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawPit(cx, cy, r, rng) {
+  const pa = rng() * Math.PI * 2; const pd = r * (0.2 + rng() * 0.3);
+  const px = cx + pd * Math.cos(pa); const py = cy + pd * Math.sin(pa);
+  const pr = r * (0.12 + rng() * 0.1);
+  const pitGrad = ctx.createRadialGradient(px, py, 0, px, py, pr);
+  pitGrad.addColorStop(0, '#000000');
+  pitGrad.addColorStop(0.6, '#0a0608');
+  pitGrad.addColorStop(1, '#201810');
+  ctx.fillStyle = pitGrad;
+  ctx.beginPath();
+  ctx.arc(px, py, pr, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#403830';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // Crenellations
+  ctx.globalAlpha = 0.3;
+  ctx.strokeStyle = '#706050';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 12; i++) {
+    const a = (Math.PI * 2 / 12) * i;
+    ctx.beginPath();
+    ctx.moveTo(px + (pr - 2) * Math.cos(a), py + (pr - 2) * Math.sin(a));
+    ctx.lineTo(px + (pr + 4) * Math.cos(a), py + (pr + 4) * Math.sin(a));
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawCracks(cx, cy, r, floorC, rng) {
+  ctx.save();
+  ctx.globalAlpha = 0.4;
+  ctx.strokeStyle = floorC.dark;
+  for (let i = 0; i < 12; i++) {
+    const a = rng() * Math.PI * 2; const d = rng() * r * 0.8;
+    const sx = cx + d * Math.cos(a); const sy = cy + d * Math.sin(a);
+    ctx.lineWidth = 0.8 + rng();
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    let lx = sx; let ly = sy;
+    for (let j = 0; j < 5; j++) {
+      lx += (rng() - 0.5) * 30; ly += (rng() - 0.5) * 30;
+      ctx.lineTo(lx, ly);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ─── Door positions per shape ─────────────────────────────
+function getDoorAngles(shape, count) {
+  // Canvas coords: 0=E(right), π/2=S(down), π=W(left), 3π/2=N(up)
+  //
+  // Hexagon face normals (vertices at -π/6 + i*π/3, flat-top):
+  //   0=E, π/3=SE, 2π/3=SW, π=W, 4π/3=NW, 5π/3=NE
+  //
+  // Octagon face normals (vertices at π/8 + i*π/4):
+  //   0=E, π/4=SE, π/2=S, 3π/4=SW, π=W, 5π/4=NW, 3π/2=N, 7π/4=NE
+
+  let pool;
+  if (shape === 'hexagon') {
+    // Priority: 1=W, 2=W+E, 3=W+NE+SE, 4=NE+NW+SW+SE, 5=NE+NW+SW+SE+W, 6=all
+    const all6 = [0, Math.PI/3, Math.PI*2/3, Math.PI, Math.PI*4/3, Math.PI*5/3];
+    //             E   SE        SW            W         NW            NE
+    const byCount = [
+      [],                                                                         // 0
+      [Math.PI],                                                                  // 1: W
+      [Math.PI, 0],                                                               // 2: W, E
+      [Math.PI, Math.PI*5/3, Math.PI/3],                                         // 3: W, NE, SE
+      [Math.PI*5/3, Math.PI*4/3, Math.PI*2/3, Math.PI/3],                        // 4: NE, NW, SW, SE
+      [Math.PI*5/3, Math.PI*4/3, Math.PI*2/3, Math.PI/3, Math.PI],               // 5: NE, NW, SW, SE, W
+      [Math.PI*5/3, Math.PI*4/3, Math.PI*2/3, Math.PI/3, Math.PI, 0],            // 6: all
+    ];
+    pool = byCount[Math.min(count, 6)];
+  } else if (shape === 'octagon') {
+    // Spread as evenly as possible by angle for each count
+    // All 8 faces sorted by angle: 0, π/4, π/2, 3π/4, π, 5π/4, 3π/2, 7π/4
+    //                               E   SE    S    SW   W   NW    N    NE
+    const oct = [0, Math.PI/4, Math.PI/2, Math.PI*3/4, Math.PI, Math.PI*5/4, Math.PI*3/2, Math.PI*7/4];
+    // For each count pick indices that maximize minimum angular gap
+    const spread = [
+      [],                       // 0
+      [4],                      // 1: W
+      [0, 4],                   // 2: E, W  (180° apart)
+      [0, Math.PI*2/3, Math.PI*4/3].map(a => Math.round(a/(Math.PI/4))).map(i=>oct[i%8]),  // fallback
+      [0, 2, 4, 6],             // 4: E, S, W, N  (90° apart)
+      [0, 1, 3, 4, 6],          // 5: E, SE, SW, W, N
+      [0, 1, 2, 4, 5, 6],       // 6: E, SE, S, W, NW, N
+      [0, 1, 2, 3, 4, 5, 6],    // 7: all but NE
+      [0, 1, 2, 3, 4, 5, 6, 7], // 8: all
+    ];
+    // Rebuild cleanly
+    const patterns = [
+      [],
+      [oct[4]],                               // W
+      [oct[0], oct[4]],                       // E, W
+      [oct[0], oct[3], oct[5]],               // E, SW, NW  — roughly 120° apart
+      [oct[0], oct[2], oct[4], oct[6]],       // E, S, W, N
+      [oct[0], oct[1], oct[3], oct[5], oct[7]],             // E, SE, SW, NW, NE
+      [oct[0], oct[1], oct[3], oct[4], oct[5], oct[7]],     // E, SE, SW, W, NW, NE
+      [oct[0], oct[1], oct[2], oct[3], oct[5], oct[6], oct[7]], // skip W
+      oct,                                    // all 8
+    ];
+    pool = patterns[Math.min(count, 8)];
+  } else {
+    // circle, square, rectangle, ellipse: S, N, E, W
+    pool = [Math.PI/2, Math.PI*3/2, 0, Math.PI];
+  }
+  return pool.slice(0, Math.min(count, pool.length));
+}
+
+function getMaxDoors(shape) {
+  if (shape === 'hexagon') return 6;
+  if (shape === 'octagon') return 8;
+  return 4;
+}
+
+function getDoorLabel(angle, shape) {
+  if (shape === 'hexagon') {
+    const map = [
+      [0,               'E'],
+      [Math.PI/3,       'SE'],
+      [Math.PI*2/3,     'SW'],
+      [Math.PI,         'W'],
+      [Math.PI*4/3,     'NW'],
+      [Math.PI*5/3,     'NE'],
+    ];
+    for (const [k, v] of map) if (Math.abs(angle - k) < 0.01) return v;
+    return '';
+  }
+  if (shape === 'octagon') {
+    const map = [
+      [0,               'E'],
+      [Math.PI/4,       'SE'],
+      [Math.PI/2,       'S'],
+      [Math.PI*3/4,     'SW'],
+      [Math.PI,         'W'],
+      [Math.PI*5/4,     'NW'],
+      [Math.PI*3/2,     'N'],
+      [Math.PI*7/4,     'NE'],
+    ];
+    for (const [k, v] of map) if (Math.abs(angle - k) < 0.01) return v;
+    return '';
+  }
+  const map = [
+    [Math.PI/2,   'S'],
+    [Math.PI*3/2, 'N'],
+    [0,           'E'],
+    [Math.PI,     'W'],
+  ];
+  for (const [k, v] of map) if (Math.abs(angle - k) < 0.01) return v;
+  return '';
+}
+
+function updateDoorPositionsLabel() {
+  const angles = getDoorAngles(state.shape, state.doorCount);
+  const labels = angles.map(a => getDoorLabel(a, state.shape));
+  document.getElementById('doorPositions').textContent = labels.join(' · ') || '—';
+}
+
+// Ray from center to rect of half-extents hw x hh at given angle
+function rayToRect(hw, hh, angle) {
+  const dx = Math.cos(angle); const dy = Math.sin(angle);
+  const tx = dx !== 0 ? hw / Math.abs(dx) : Infinity;
+  const ty = dy !== 0 ? hh / Math.abs(dy) : Infinity;
+  return Math.min(tx, ty);
+}
+
+// Ray to regular n-polygon with circumradius R, with a phase offset
+function rayToRegularPoly(n, R, angle) {
+  const sector = Math.floor(((angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2) / (Math.PI * 2 / n));
+  const midAngle = sector * (Math.PI * 2 / n) + Math.PI / n;
+  const apothem = R * Math.cos(Math.PI / n);
+  return apothem / Math.cos(angle - midAngle);
+}
+
+// Returns the exact midpoint of the wall face nearest to `angle` for polygon shapes.
+// Geometry verified against actual canvas draw code for each shape.
+function getEdgePt(cx, cy, R, angle, shape, isOuter) {
+  if (shape === 'circle') {
+    return { x: cx + R * Math.cos(angle), y: cy + R * Math.sin(angle) };
+  }
+  if (shape === 'ellipse') {
+    return { x: cx + R * Math.cos(angle), y: cy + R * getYScale() * Math.sin(angle) };
+  }
+  if (shape === 'square') {
+    const r = rayToRect(R, R, angle);
+    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+  }
+  if (shape === 'rectangle') {
+    const r = rayToRect(R, R * getYScale(), angle);
+    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+  }
+
+  if (shape === 'octagon') {
+    // Octagon drawn with vertices at (±s,±R) and (±R,±s) where s=R*0.414
+    // Face midpoints are at distance R from center at angles: 0, π/4, π/2, 3π/4, π, 5π/4, 3π/2, 7π/4
+    // (i.e. E, SE, S, SW, W, NW, N, NE in canvas coords)
+    const faceNormals = Array.from({length: 8}, (_, i) => i * Math.PI / 4);
+    const bestNormal = nearestAngle(angle, faceNormals);
+    // Distance to face midpoint = R (circumradius) for this octagon definition
+    return { x: cx + R * Math.cos(bestNormal), y: cy + R * Math.sin(bestNormal) };
+  }
+
+  if (shape === 'hexagon') {
+    // Hexagon drawn with vertices at angle = (π/3)*i - π/6
+    // Face midpoints at angles: 0, π/3, 2π/3, π, 4π/3, 5π/3
+    // Distance to face midpoint = R * cos(π/6) = R * √3/2 ≈ 0.866R
+    const faceNormals = Array.from({length: 6}, (_, i) => i * Math.PI / 3);
+    const bestNormal = nearestAngle(angle, faceNormals);
+    const apothem = R * Math.cos(Math.PI / 6);
+    return { x: cx + apothem * Math.cos(bestNormal), y: cy + apothem * Math.sin(bestNormal) };
+  }
+
+  return { x: cx + R * Math.cos(angle), y: cy + R * Math.sin(angle) };
+}
+
+// Find the angle in `pool` nearest to `target` (handles wrapping)
+function nearestAngle(target, pool) {
+  let best = pool[0], bestDiff = Infinity;
+  const tau = Math.PI * 2;
+  for (const a of pool) {
+    let diff = Math.abs(target - a) % tau;
+    if (diff > Math.PI) diff = tau - diff;
+    if (diff < bestDiff) { bestDiff = diff; best = a; }
+  }
+  return best;
+}
+
+// ─── Draw all doors ────────────────────────────────────────
+const SCIFI_MATERIALS = new Set(['spacestation', 'office', 'smooth', 'concrete', 'martian']);
+
+function drawDoor(cx, cy, outerR, wallColors, shape, rng, chamberR) {
+  const angles = getDoorAngles(shape, state.doorCount);
+  const isScifi = SCIFI_MATERIALS.has(state.material);
+
+  angles.forEach(angle => {
+    const outer = getEdgePt(cx, cy, outerR, angle, shape, true);
+    const inner = getEdgePt(cx, cy, chamberR, angle, shape, false);
+    const wallDepth = Math.hypot(outer.x - inner.x, outer.y - inner.y);
+    const dw = 14;
+
+    if (isScifi) {
+      drawScifiDoor(inner, outer, wallDepth, dw, angle, wallColors);
+    } else {
+      drawFantasyDoor(inner, outer, wallDepth, dw, angle, wallColors);
+    }
+
+  });
+}
+
+// ─── Fantasy wooden door ───────────────────────────────────
+function drawFantasyDoor(inner, outer, wallDepth, dw, angle, wallColors) {
+  ctx.save();
+  ctx.translate(inner.x, inner.y);
+  ctx.rotate(angle - Math.PI / 2);
+
+  // Clear passage
+  ctx.fillStyle = '#1a1008';
+  ctx.fillRect(-dw, 0, dw * 2, wallDepth + 2);
+
+  // Door slab
+  ctx.fillStyle = '#3d2810';
+  ctx.fillRect(-dw + 2, wallDepth * 0.15, (dw - 2) * 2, wallDepth * 0.7);
+
+  // Frame jambs
+  ctx.fillStyle = wallColors.dark;
+  ctx.fillRect(-dw, 0, 3, wallDepth);
+  ctx.fillRect(dw - 3, 0, 3, wallDepth);
+
+  // Frame highlight
+  ctx.strokeStyle = wallColors.light + '70';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(-dw, 0, dw * 2, wallDepth);
+
+  // Hinges
+  ctx.fillStyle = '#706050';
+  ctx.fillRect(-dw, wallDepth * 0.22, 5, 4);
+  ctx.fillRect(-dw, wallDepth * 0.65, 5, 4);
+
+  // Handle
+  ctx.fillStyle = '#c09040';
+  ctx.beginPath();
+  ctx.arc(dw - 7, wallDepth * 0.46, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+// ─── Sci-fi sliding door / portal ─────────────────────────
+function drawScifiDoor(inner, outer, wallDepth, dw, angle, wallColors) {
+  // Choose style: spacestation/office get iris/slider; concrete/martian get blast door
+  const mat = state.material;
+  const isBlast = mat === 'concrete' || mat === 'martian';
+
+  ctx.save();
+  ctx.translate(inner.x, inner.y);
+  ctx.rotate(angle - Math.PI / 2);
+
+  const gapColor   = mat === 'spacestation' ? '#050c18' :
+                     mat === 'office'        ? '#0a1520' :
+                     mat === 'smooth'        ? '#080d14' :
+                     mat === 'martian'       ? '#1a0a04' : '#060a0e';
+  const glowColor  = mat === 'martian'       ? '#ff4400' :
+                     mat === 'concrete'      ? '#ffaa00' : '#00cfff';
+  const panelColor = mat === 'martian'       ? '#3a1a08' :
+                     mat === 'concrete'      ? '#2a2820' : '#0e1c2e';
+  const trimColor  = mat === 'martian'       ? '#c04010' :
+                     mat === 'concrete'      ? '#c09020' : '#1a8ec0';
+
+  // ── Void passage
+  ctx.fillStyle = gapColor;
+  ctx.fillRect(-dw, 0, dw * 2, wallDepth + 2);
+
+  if (isBlast) {
+    // ── BLAST DOOR — two thick armored panels that slide apart top/bottom
+    const sliderH = wallDepth * 0.38;
+    const sliderGap = wallDepth * 0.24; // open gap in center
+
+    // Top panel
+    const topY = 0;
+    ctx.fillStyle = panelColor;
+    ctx.fillRect(-dw + 1, topY, (dw - 1) * 2, sliderH);
+    // Ribbing on top panel
+    ctx.strokeStyle = trimColor + '60';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 4; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-dw + 1, topY + sliderH * (i / 4));
+      ctx.lineTo(dw - 1, topY + sliderH * (i / 4));
+      ctx.stroke();
+    }
+    // Warning stripe on top panel bottom edge
+    const stripeH = 4;
+    for (let s = 0; s < Math.floor((dw * 2) / stripeH); s++) {
+      ctx.fillStyle = s % 2 === 0 ? trimColor + 'cc' : '#111';
+      ctx.fillRect(-dw + 1 + s * stripeH, topY + sliderH - stripeH, stripeH, stripeH);
+    }
+
+    // Bottom panel
+    const botY = wallDepth - sliderH;
+    ctx.fillStyle = panelColor;
+    ctx.fillRect(-dw + 1, botY, (dw - 1) * 2, sliderH);
+    for (let i = 1; i < 4; i++) {
+      ctx.strokeStyle = trimColor + '60';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(-dw + 1, botY + sliderH * (i / 4));
+      ctx.lineTo(dw - 1, botY + sliderH * (i / 4));
+      ctx.stroke();
+    }
+    // Warning stripe on bottom panel top edge
+    for (let s = 0; s < Math.floor((dw * 2) / stripeH); s++) {
+      ctx.fillStyle = s % 2 === 0 ? trimColor + 'cc' : '#111';
+      ctx.fillRect(-dw + 1 + s * stripeH, botY, stripeH, stripeH);
+    }
+
+    // Open gap glow between panels
+    ctx.save();
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = 10;
+    const gapGrad = ctx.createLinearGradient(-dw, topY + sliderH, -dw, botY);
+    gapGrad.addColorStop(0, glowColor + '80');
+    gapGrad.addColorStop(0.5, glowColor + '30');
+    gapGrad.addColorStop(1, glowColor + '80');
+    ctx.fillStyle = gapGrad;
+    ctx.fillRect(-dw + 1, topY + sliderH, (dw - 1) * 2, sliderGap);
+    ctx.restore();
+
+    // Outer frame
+    ctx.strokeStyle = trimColor;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(-dw, 0, dw * 2, wallDepth);
+
+    // Sensor pips on frame sides
+    ctx.fillStyle = glowColor;
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = 6;
+    ctx.beginPath(); ctx.arc(-dw + 2, wallDepth / 2, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(dw - 2, wallDepth / 2, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+
+  } else {
+    // ── SLIDING DOOR — two panels retracted left/right into pockets
+    const pocketW = dw * 0.55;   // how far each panel slides into wall
+    const panelW  = dw - pocketW; // visible stub of each panel
+    const lineH   = wallDepth;
+
+    // Left panel (slid into left wall)
+    ctx.fillStyle = panelColor;
+    ctx.fillRect(-dw, 0, pocketW + panelW, lineH);
+
+    // Vertical grooves on left panel
+    ctx.strokeStyle = trimColor + '50';
+    ctx.lineWidth = 0.8;
+    for (let g = 0; g < 3; g++) {
+      ctx.beginPath();
+      ctx.moveTo(-dw + 3 + g * (pocketW / 3), 2);
+      ctx.lineTo(-dw + 3 + g * (pocketW / 3), lineH - 2);
+      ctx.stroke();
+    }
+
+    // Right panel (slid into right wall)
+    ctx.fillStyle = panelColor;
+    ctx.fillRect(dw - pocketW - panelW, 0, pocketW + panelW, lineH);
+
+    // Vertical grooves on right panel
+    for (let g = 0; g < 3; g++) {
+      ctx.beginPath();
+      ctx.moveTo(dw - 3 - g * (pocketW / 3), 2);
+      ctx.lineTo(dw - 3 - g * (pocketW / 3), lineH - 2);
+      ctx.stroke();
+    }
+
+    // Center open gap — glowing threshold strip
+    ctx.save();
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = 14;
+    // Thin glowing line down the center opening
+    const thresh = ctx.createLinearGradient(0, 0, 0, lineH);
+    thresh.addColorStop(0,   glowColor + '00');
+    thresh.addColorStop(0.15, glowColor + 'ff');
+    thresh.addColorStop(0.85, glowColor + 'ff');
+    thresh.addColorStop(1,   glowColor + '00');
+    ctx.strokeStyle = thresh;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-panelW, 0);
+    ctx.lineTo(-panelW, lineH);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(panelW, 0);
+    ctx.lineTo(panelW, lineH);
+    ctx.stroke();
+    ctx.restore();
+
+    // Floor track line
+    ctx.strokeStyle = trimColor + '90';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(-dw, lineH * 0.08); ctx.lineTo(dw, lineH * 0.08); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-dw, lineH * 0.92); ctx.lineTo(dw, lineH * 0.92); ctx.stroke();
+
+    // Outer frame
+    ctx.strokeStyle = trimColor;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(-dw, 0, dw * 2, wallDepth);
+
+    // Top + bottom indicator lights (status LEDs)
+    ctx.save();
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = glowColor;
+    // Two top LEDs
+    ctx.beginPath(); ctx.arc(-dw * 0.35, 3, 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc( dw * 0.35, 3, 1.5, 0, Math.PI * 2); ctx.fill();
+    // Two bottom LEDs
+    ctx.beginPath(); ctx.arc(-dw * 0.35, lineH - 3, 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc( dw * 0.35, lineH - 3, 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+
+    // Side sensor panel (small recessed panel on right jamb)
+    ctx.fillStyle = '#0a1a2a';
+    ctx.fillRect(dw - 2, lineH * 0.35, 4, lineH * 0.3);
+    ctx.save();
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = 4;
+    ctx.fillStyle = glowColor + 'cc';
+    ctx.fillRect(dw - 1, lineH * 0.42, 2, 3);
+    ctx.fillRect(dw - 1, lineH * 0.52, 2, 3);
+    ctx.fillRect(dw - 1, lineH * 0.62, 2, 3);
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+// ─── Wall edge highlight ──────────────────────────────────
+function drawWallEdge(outerPath, innerPath, wallColors) {
+  // Inner wall edge
+  ctx.save();
+  ctx.clip(outerPath);
+  ctx.strokeStyle = wallColors.light + '60';
+  ctx.lineWidth = 1.5;
+  ctx.stroke(innerPath);
+  ctx.strokeStyle = wallColors.dark + '80';
+  ctx.lineWidth = 3;
+  ctx.stroke(innerPath);
+  ctx.restore();
+  // Outer edge
+  ctx.strokeStyle = wallColors.dark;
+  ctx.lineWidth = 2;
+  ctx.stroke(outerPath);
+}
+
+// ─── Scale Bar ────────────────────────────────────────────
+// ─── Description ─────────────────────────────────────────
+function updateDescription() {
+  const shapes = { circle: 'circular', square: 'square', rectangle: 'rectangular', octagon: 'octagonal', hexagon: 'hexagonal', ellipse: 'elliptical' };
+  const matNames = { stone: 'rough-hewn stone', brick: 'fitted brickwork', marble: 'polished marble', wood: 'aged timber', obsidian: 'black obsidian', ice: 'glacial ice', dirt: 'packed earth', sandstone: 'eroded sandstone', crystal: 'crystalline mineral', smooth: 'smooth plastered walls', concrete: 'poured concrete', office: 'office drywall panels', spacestation: 'space station hull plating', martian: 'martian bedrock' };
+  const lightNames = { torchlit: 'torchlit', dim: 'dimly shadowed', bright: 'magically illuminated', unlit: 'pitch-black', bioluminescent: 'bathed in bioluminescent glow', hellish: 'lit by hellish fire' };
+
+  const feats = [...state.features].join(', ');
+  document.getElementById('descBox').innerHTML =
+    `<em>A ${shapes[state.shape] || state.shape} chamber of ${matNames[state.material]}, ${lightNames[state.lighting]}. ` +
+    (feats ? `Notable features: ${feats.replace(/,/g, ', ')}.` : '') + `</em>`;
+}
+
+// ─── UI wiring ────────────────────────────────────────────
+function updateProportionVisibility() {
+  const show = state.shape === 'rectangle' || state.shape === 'ellipse';
+  document.getElementById('proportionRow').style.display = show ? 'block' : 'none';
+}
+
+document.querySelectorAll('[data-shape]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-shape]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.shape = btn.dataset.shape;
+    // Clamp door count to max available for this shape
+    const maxDoors = getMaxDoors(state.shape);
+    state.doorCount = Math.min(state.doorCount, maxDoors);
+    document.getElementById('doorCountVal').textContent = state.doorCount;
+    updateDoorPositionsLabel();
+    updateColLayoutLabel();
+    updateProportionVisibility();
+    // Clamp column count to max for new shape
+    const maxCols = getMaxColumns(state.shape);
+    if (state.columnCount > maxCols) {
+      state.columnCount = maxCols;
+      document.getElementById('colCountVal').textContent = state.columnCount;
+    }
+    state.seed = Math.random() * 10000 | 0;
+    draw();
+  });
+});
+
+// ─── Proportion ratio buttons ─────────────────────────────
+document.querySelectorAll('[data-ratio]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-ratio]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const v = btn.dataset.ratio;
+    if (v === 'custom') {
+      state.aspectRatio = 'custom';
+      document.getElementById('customRatioRow').style.display = 'block';
+    } else {
+      state.aspectRatio = parseFloat(v);
+      document.getElementById('customRatioRow').style.display = 'none';
+    }
+    draw();
+  });
+});
+
+document.getElementById('ratioXSlider').addEventListener('input', e => {
+  state.customX = +e.target.value;
+  document.getElementById('ratioXVal').textContent = e.target.value;
+  draw();
+});
+document.getElementById('ratioYSlider').addEventListener('input', e => {
+  state.customY = +e.target.value;
+  document.getElementById('ratioYVal').textContent = e.target.value;
+  draw();
+});
+
+document.getElementById('doorDec').addEventListener('click', () => {
+  if (state.doorCount > 0) {
+    state.doorCount--;
+    document.getElementById('doorCountVal').textContent = state.doorCount;
+    updateDoorPositionsLabel();
+    draw();
+  }
+});
+
+document.getElementById('doorInc').addEventListener('click', () => {
+  const max = getMaxDoors(state.shape);
+  if (state.doorCount < max) {
+    state.doorCount++;
+    document.getElementById('doorCountVal').textContent = state.doorCount;
+    updateDoorPositionsLabel();
+    draw();
+  }
+});
+
+// ─── Column counter ───────────────────────────────────────
+function getMaxColumns(shape) {
+  if (shape === 'hexagon') return 6;
+  if (shape === 'octagon') return 8;
+  return 16;
+}
+
+function updateColLayoutLabel() {
+  const shape = state.shape;
+  const n = state.columnCount;
+  let desc = '';
+  if (n === 0) {
+    desc = 'none';
+  } else if (shape === 'circle' || shape === 'ellipse') {
+    desc = `ring of ${n}`;
+  } else if (shape === 'rectangle') {
+    desc = `${Math.floor(n/2)}×2 rows`;
+  } else if (shape === 'square') {
+    desc = `nave · ${n}`;
+  } else {
+    desc = `${n} at corners`;
+  }
+  document.getElementById('colLayout').textContent = desc;
+}
+
+document.getElementById('colDec').addEventListener('click', () => {
+  if (state.columnCount > 0) {
+    state.columnCount--;
+    document.getElementById('colCountVal').textContent = state.columnCount;
+    updateColLayoutLabel();
+    draw();
+  }
+});
+
+document.getElementById('colInc').addEventListener('click', () => {
+  const max = getMaxColumns(state.shape);
+  if (state.columnCount < max) {
+    state.columnCount++;
+    document.getElementById('colCountVal').textContent = state.columnCount;
+    updateColLayoutLabel();
+    draw();
+  }
+});
+
+document.querySelectorAll('#wallSwatches .swatch').forEach(s => {
+  s.addEventListener('click', () => {
+    document.querySelectorAll('#wallSwatches .swatch').forEach(x => x.classList.remove('active'));
+    s.classList.add('active');
+    state.wallColor = s.dataset.color;
+    draw();
+  });
+});
+
+document.querySelectorAll('#floorSwatches .swatch').forEach(s => {
+  s.addEventListener('click', () => {
+    document.querySelectorAll('#floorSwatches .swatch').forEach(x => x.classList.remove('active'));
+    s.classList.add('active');
+    state.floorColor = s.dataset.color;
+    draw();
+  });
+});
+
+document.querySelectorAll('[data-feat]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const f = btn.dataset.feat;
+    if (state.features.has(f)) { state.features.delete(f); btn.classList.remove('active'); }
+    else { state.features.add(f); btn.classList.add('active'); }
+    draw();
+  });
+});
+
+function wireRange(id, valId, key, suffix = '') {
+  const slider = document.getElementById(id);
+  const val = document.getElementById(valId);
+  slider.addEventListener('input', () => {
+    state[key] = +slider.value;
+    val.textContent = slider.value + suffix;
+    draw();
+  });
+}
+wireRange('sizeSlider', 'sizeVal', 'size', '%');
+wireRange('wallSlider', 'wallVal', 'wallThick', '');
+wireRange('heightSlider', 'heightVal', 'heightShadow', '');
+
+document.getElementById('materialSelect').addEventListener('change', e => {
+  state.material = e.target.value;
+  draw();
+});
+
+document.getElementById('lightingSelect').addEventListener('change', e => {
+  state.lighting = e.target.value;
+  draw();
+});
+
+// ─── AI Parsing ────────────────────────────────────────────
+// ─── Init ─────────────────────────────────────────────────
+updateDoorPositionsLabel();
+updateColLayoutLabel();
+updateProportionVisibility();
+draw();
+
+// ─── Download Transparent PNG ─────────────────────────────
+document.getElementById('dlBtn').addEventListener('click', () => {
+  const rng = mulberry32(state.seed);
+  const cx = W / 2, cy = H / 2;
+  const maxR = Math.min(W, H) * 0.5 * 0.95;
+  const chamberR = maxR * (state.size / 100);
+  const wallW = chamberR * (state.wallThick / 100);
+  const outerR = chamberR + wallW;
+
+  // Create offscreen canvas (transparent background)
+  const off = document.createElement('canvas');
+  off.width = W; off.height = H;
+  const octx = off.getContext('2d');
+
+  // Copy the current rendered canvas into the offscreen one
+  octx.drawImage(canvas, 0, 0);
+
+  // Build the outer wall path to use as a mask
+  const outerPath = makeChamberPath(cx, cy, outerR, state.shape, rng, true);
+
+  // Punch out everything OUTSIDE the outer wall by using destination-in
+  // which keeps only pixels that overlap with the path
+  octx.save();
+  octx.globalCompositeOperation = 'destination-in';
+  octx.beginPath();
+  // Redraw the outer path on the offscreen canvas
+  const outerPath2 = makeChamberPath(cx, cy, outerR, state.shape, mulberry32(state.seed + 9999), true);
+  octx.fill(outerPath2);
+  octx.restore();
+
+  // Trigger download
+  const link = document.createElement('a');
+  link.download = 'chamber.png';
+  link.href = off.toDataURL('image/png');
+  link.click();
+});
+</script>
+</body>
+</html>
