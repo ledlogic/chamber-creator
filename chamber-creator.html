@@ -2620,6 +2620,7 @@ document.getElementById('doorInc').addEventListener('click', () => {
 function getMaxColumns(shape) {
   if (shape === 'hexagon') return 6;
   if (shape === 'octagon') return 8;
+  if (shape === 'ellipse' || shape === 'circle') return 24;
   return 16;
 }
 
